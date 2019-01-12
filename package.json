@@ -1,0 +1,28 @@
+{
+  "name": "nodeRestDB",
+  "version": "0.1.1",
+  "description": "Node.js REST DB",
+  "apidoc": {
+    "title": "Node.js REST DB",
+    "url": "https://restdb.mambix.com"
+  },
+  "main": "index.js",
+  "scripts": {
+    "docs": "./node_modules/.bin/apidoc -i API/ -o apidoc/",
+    "test": "./node_modules/.bin/tap -j8 test/*Test.js -T --cov --coverage-report=html",
+    "testCache": "./node_modules/.bin/tap test/cacheTest.js",
+    "testNotifyAPI": "./node_modules/.bin/mocha ./testAPI/notifyApiTest.js --exit --timeout=5000"
+  },
+  "author": "rmamba@gmail.com",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.16.4"
+  },
+  "devDependencies": {},
+  "nyc": {
+    "exclude": [
+      "test/**",
+      "modules/test/**"
+    ]
+  }
+}
