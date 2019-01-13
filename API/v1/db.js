@@ -32,19 +32,18 @@ const isDebug = process.env.NodeDB_DEBUG === 'true';
 //  *     }
 //  */
 
-// /**
-//  * @apiDefine AdminHeader
-//  *
-//  * @apiHeader {Number} tracking-api-id Admin's unique access-id.
-//  * @apiHeader {String} tracking-api-key Admin's unique access-key.
-//  * 
-//  */
+/**
+ * @apiDefine AdminHeader
+ *
+ * @apiHeader {String} secret You secret key. All data will be saved under this key.
+ * 
+ */
 
 /**
- * @api {get} /db Statistical data
- * @apiName StatisticalData
- * @apiGroup webstats
- * @apiVersion 3.0.29
+ * @api {get} /db Get value
+ * @apiName GetValue
+ * @apiGroup db
+ * @apiVersion 0.1.1
  * 
  * @apiUse AdminHeader
  *
@@ -89,10 +88,10 @@ router.get('/*', function(req, res) {
 });
 
 /**
- * @api {get} /webstats/stats Orders
- * @apiName GetOrders
- * @apiGroup webstats
- * @apiVersion 3.0.16
+ * @api {post} /db Get value
+ * @apiName PostValue
+ * @apiGroup db
+ * @apiVersion 0.1.1
  * 
  * @apiUse AdminHeader
  *
@@ -141,10 +140,10 @@ router.post('/', function(req, res) {
 });
 
 /**
- * @api {get} /webstats/stats Orders
- * @apiName GetOrders
- * @apiGroup webstats
- * @apiVersion 3.0.16
+ * @api {put} /db Save value
+ * @apiName PutValue
+ * @apiGroup db
+ * @apiVersion 0.1.1
  * 
  * @apiUse AdminHeader
  *
@@ -208,7 +207,35 @@ router.put('/', function(req, res) {
     });
 });
 
-router.delete('/:path', function(req, res) {
+/**
+ * @api {delete} /v1/db Delete value
+ * @apiName DeleteValue
+ * @apiGroup db
+ * @apiVersion 0.1.2
+ * 
+ * @apiUse AdminHeader
+ *
+ * @apiSuccess {Object} [pagination] Pagination data.
+ * @apiSuccess {Array} orders Array of order data.
+ *
+ * @apiSuccessExample Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *   "pagination": {
+ *     "prev": "2018-11-15T13:41:36.455Z",
+ *     "limit": 50,
+ *     "next": "2018-11-14T09:14:42.420Z"
+ *   },
+ *   "orders": [
+ *     {
+ *         orderData
+ *     }
+ *   ]
+ * }
+ *
+ * @apiUse ReturnErrorMessage
+ */
+router.delete('/', function(req, res) {
     if (!Helper.auth.admin(req, res)) { return; }
     var from = new Date(Date.now() - 3 * 3600 * 24 * 1000);
     if (req.query.hasOwnProperty('fromDate')) {
