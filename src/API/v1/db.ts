@@ -1,23 +1,23 @@
 "use strict";
 
-import fs from "fs";
 import express from "express";
+import fs from "fs";
+import cors from "../../config/cors";
 import Helper from "./helper";
 
 const router = express.Router();
 
-if (fs.existsSync('../../config/cors.js')) {
-    const cors = require('../../config/cors');
-    router.use(cors);
+if (fs.existsSync("../../config/cors.js")) {
+  router.use(cors);
 }
 
-if (fs.existsSync('../../config/admin.js')) {
-    const ADMIN = require('../../config/admin');
-}
+// if (fs.existsSync("../../config/admin.js")) {
+//   import ADMIN from "../../config/admin";
+// }
 
-var DATA = {};
-var PrivateDATA = {};
-const isDebug = process.env.NodeDB_DEBUG === 'true';
+const DATA = {};
+const PrivateDATA = {};
+const isDebug = process.env.NodeDB_DEBUG === "true";
 
 // /**
 //  * @apiDefine ReturnErrorMessage
@@ -35,7 +35,7 @@ const isDebug = process.env.NodeDB_DEBUG === 'true';
  * @apiDefine AdminHeader
  *
  * @apiHeader {String} secret You secret key. All data will be saved under this key.
- * 
+ *
  */
 
 /**
@@ -43,7 +43,7 @@ const isDebug = process.env.NodeDB_DEBUG === 'true';
  * @apiName GetValue
  * @apiGroup db
  * @apiVersion 0.1.1
- * 
+ *
  * @apiUse AdminHeader
  *
  * @apiParam {Number} id Users unique ID.
@@ -63,27 +63,27 @@ const isDebug = process.env.NodeDB_DEBUG === 'true';
  *
  * @apiUse ReturnErrorMessage
  */
-router.get('/*', function(req, res) {
-    var path = req.path.substr(1).split('/');
-    if (isDebug) {
-        console.log(`PATH: ${path}`);
+router.get("/*", (req, res) => {
+  const path = req.path.substr(1).split("/");
+  if (isDebug) {
+    console.log(`PATH: ${path}`);
+  }
+  let data = DATA;
+  if (req.query.secret) {
+    if (!PrivateDATA.hasOwnProperty(req.query.secret)) {
+      PrivateDATA[req.query.secret] = {};
     }
-    var data = DATA;
-    if (req.query.secret) {
-        if (!PrivateDATA.hasOwnProperty(req.query.secret)) {
-            PrivateDATA[req.query.secret] = {}; 
-        }
-        data = PrivateDATA[req.query.secret];
+    data = PrivateDATA[req.query.secret];
+  }
+  for (let i = 0; i < path.length; i++) {
+    const p = path[i];
+    if (!data[p]) {
+      i = path.length;
+    } else {
+      data = data[p];
     }
-    for (let i=0; i<path.length; i++) {
-        const p = path[i];
-        if (!data[p]) {
-            i = path.length;
-        } else {
-            data = data[p];
-        }
-    }
-    Helper.returnJSON(res, data);
+  }
+  Helper.returnJSON(res, data);
 });
 
 /**
@@ -91,7 +91,7 @@ router.get('/*', function(req, res) {
  * @apiName PostValue
  * @apiGroup db
  * @apiVersion 0.1.1
- * 
+ *
  * @apiUse AdminHeader
  *
  * @apiSuccess {Object} [pagination] Pagination data.
@@ -114,33 +114,45 @@ router.get('/*', function(req, res) {
  *
  * @apiUse ReturnErrorMessage
  */
-router.post('/', function(req, res) {
-    var path = req.body.path || '';
-    path = path.split('/');
-    if (isDebug) {
-        console.log(`PATH: ${path}`);
-    }
+router.post("/*", (req, res) => {
+  const path = req.path.substr(1).split("/");
+  if (isDebug) {
+    console.log(`PATH: ${path}`);
+  }
 
-    if (req.headers.secret instanceof Array) {
-      throw new Error('Secret can not be array.');
-    }
+  if (req.headers.secret instanceof Array) {
+    throw new Error("Secret can not be array.");
+  }
 
-    var data = DATA;
-    if (req.headers.secret) {
-        if (!PrivateDATA.hasOwnProperty(req.headers.secret)) {
-            PrivateDATA[req.headers.secret] = {}; 
-        }
-        data = PrivateDATA[req.headers.secret];
+  let data = DATA;
+  if (req.headers.secret) {
+    if (!PrivateDATA.hasOwnProperty(req.headers.secret)) {
+      PrivateDATA[req.headers.secret] = {};
     }
-    for (let i=0; i<path.length; i++) {
-        const p = path[i];
-        if (!data[p]) {
-            i = path.length;
-        } else {
-            data = data[p];
-        }
+    data = PrivateDATA[req.headers.secret];
+  }
+  let p;
+  for (let i=0; i<path.length; i++) {
+    p = path[i];
+    if (!data[p]) {
+      data[p] = {};
     }
-    Helper.returnJSON(res, data);
+    if (i < (path.length - 1)) {
+      data = data[p];
+    }
+  }
+  if (!isNaN(req.body)) {
+    data[p] = parseFloat(req.body);
+  } else {
+    try {
+      data[p] = JSON.parse(req.body);
+    } catch (e) {
+      data[p] = req.body;
+    }
+  }
+  Helper.returnJSON(res, {
+    code: 1
+  });
 });
 
 /**
@@ -148,7 +160,7 @@ router.post('/', function(req, res) {
  * @apiName PutValue
  * @apiGroup db
  * @apiVersion 0.1.1
- * 
+ *
  * @apiUse AdminHeader
  *
  * @apiSuccess {Object} [pagination] Pagination data.
@@ -171,49 +183,49 @@ router.post('/', function(req, res) {
  *
  * @apiUse ReturnErrorMessage
  */
-router.put('/', function(req, res) {
-    var path = req.body.path || '';
-    path = path.split('/');
-    if (isDebug) {
-        console.log(`PATH: ${path}`);
-    }
+router.put("/", (req, res) => {
+  let path = req.body.path || "";
+  path = path.split("/");
+  if (isDebug) {
+    console.log(`PATH: ${path}`);
+  }
 
-    if (req.headers.secret instanceof Array) {
-      throw new Error('Secret can not be array.');
-    }
+  if (req.headers.secret instanceof Array) {
+    throw new Error("Secret can not be array.");
+  }
 
-    var data = DATA;
-    if (req.headers.secret) {
-        if (!PrivateDATA.hasOwnProperty(req.headers.secret)) {
-            PrivateDATA[req.headers.secret] = {}; 
-        }
-        data = PrivateDATA[req.headers.secret];
+  let data = DATA;
+  if (req.headers.secret) {
+    if (!PrivateDATA.hasOwnProperty(req.headers.secret)) {
+      PrivateDATA[req.headers.secret] = {};
     }
-    var p;
-    for (let i=0; i<path.length-1; i++) {
-        p = path[i];
-        if (!data[p]) {
-            data[p] = {};
-        } else {
-            if (typeof data[p] !== 'object') {
-                data[p] = {};
-            }
-        }
-        data = data[p];
-    }
-    p = path[path.length-1];
-    if (!isNaN(req.body.value)) {
-        data[p] = parseFloat(req.body.value);
+    data = PrivateDATA[req.headers.secret];
+  }
+  let p;
+  for (let i = 0; i < path.length - 1; i++) {
+    p = path[i];
+    if (!data[p]) {
+      data[p] = {};
     } else {
-        try {
-            data[p] = JSON.parse(req.body.value);
-        } catch (e) {
-            data[p] = req.body.value;
-        }
+      if (typeof data[p] !== "object") {
+        data[p] = {};
+      }
     }
-    Helper.returnJSON(res, {
-        code: 1
-    });
+    data = data[p];
+  }
+  p = path[path.length - 1];
+  if (!isNaN(req.body.value)) {
+    data[p] = parseFloat(req.body.value);
+  } else {
+    try {
+      data[p] = JSON.parse(req.body.value);
+    } catch (e) {
+      data[p] = req.body.value;
+    }
+  }
+  Helper.returnJSON(res, {
+    code: 1
+  });
 });
 
 /**
@@ -221,7 +233,7 @@ router.put('/', function(req, res) {
  * @apiName DeleteValue
  * @apiGroup db
  * @apiVersion 0.1.2
- * 
+ *
  * @apiUse AdminHeader
  *
  * @apiSuccess {Object} [pagination] Pagination data.
@@ -244,7 +256,7 @@ router.put('/', function(req, res) {
  *
  * @apiUse ReturnErrorMessage
  */
-// router.delete('/', function(req, res) {
+// router.delete('/', (req, res) => {
 //     if (!Helper.auth.admin(req, res)) { return; }
 //     var from = new Date(Date.now() - 3 * 3600 * 24 * 1000);
 //     if (req.query.hasOwnProperty('fromDate')) {

@@ -1,11 +1,13 @@
-import * as fs from "fs";
+"use strict";
+
+import fs from "fs";
 import { IVersionData } from "./interfaces";
 
-const project: IVersionData = JSON.parse(fs.readFileSync('package.json').toString());
-const __version__: string = project.version;
-const __build_number__: string = 'xxx';
+const project: IVersionData = JSON.parse(fs.readFileSync("package.json").toString());
+const projectVersion: string = project.version;
+const buildNumber: string = "xxx";
 
 export = {
-    version: __version__,
-    build: __build_number__
+  build: buildNumber,
+  version: projectVersion
 };
