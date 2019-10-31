@@ -120,6 +120,20 @@ router.post("/*", (req, res) => {
     console.log(`PATH: ${path}`);
   }
 
+  if (req.headers.data instanceof Array) {
+    throw new Error("Data can not be array.");
+  }
+  let value;
+  if (typeof req.headers.data === "number") {
+    value = parseFloat(req.headers.data);
+  } else {
+    try {
+      value = JSON.parse(req.headers.data);
+    } catch (e) {
+      value = req.headers.data;
+    }
+  }
+
   if (req.headers.secret instanceof Array) {
     throw new Error("Secret can not be array.");
   }
@@ -141,15 +155,7 @@ router.post("/*", (req, res) => {
       data = data[p];
     }
   }
-  if (!isNaN(req.body)) {
-    data[p] = parseFloat(req.body);
-  } else {
-    try {
-      data[p] = JSON.parse(req.body);
-    } catch (e) {
-      data[p] = req.body;
-    }
-  }
+  data[p] = value;
   Helper.returnJSON(res, {
     code: 1
   });
