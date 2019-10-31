@@ -5,8 +5,6 @@ import express from "express";
 import project from "./version";
 
 const app: express.Application = express();
-// const bodyParser = require('body-parser');
-// app.use(bodyParser.json({ limit: '10mb' }));
 app.use(express.json());
 
 if (process.env.NodeDB_COMPRESSION === "true") {
