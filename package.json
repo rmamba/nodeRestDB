@@ -1,5 +1,5 @@
 {
-  "name": "nodeRestDB",
+  "name": "node-rest-db",
   "version": "0.1.2",
   "description": "Node.js REST DB",
   "apidoc": {
@@ -8,6 +8,9 @@
   },
   "main": "index.js",
   "scripts": {
+    "start": "npm run build:live",
+    "build": "tsc -p .",
+    "build:live": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/index.ts",
     "docs": "./node_modules/.bin/apidoc -i API/ -o apidoc/",
     "test": "./node_modules/.bin/tap -j8 test/*Test.js -T --cov --coverage-report=html",
     "testCache": "./node_modules/.bin/tap test/cacheTest.js",
@@ -16,9 +19,16 @@
   "author": "rmamba@gmail.com",
   "license": "MIT",
   "dependencies": {
+    "@types/express": "^4.17.1",
     "express": "^4.16.4"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "@types/mocha": "^5.2.7",
+    "@types/node": "^12.12.3",
+    "nodemon": "^1.19.4",
+    "ts-node": "^8.4.1",
+    "typescript": "^3.6.4"
+  },
   "nyc": {
     "exclude": [
       "test/**",

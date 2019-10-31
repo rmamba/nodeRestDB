@@ -4,10 +4,10 @@
 process.env.NODE_ENV = 'test';
 process.env.NodeDB_DEBUG = 'true';
 
-const express = require('express');
-const app = express();
-const version = require('./version');
+import express from "express";
+import project from "./version";
 
+const app: express.Application = express();
 // const bodyParser = require('body-parser');
 // app.use(bodyParser.json({ limit: '10mb' }));
 app.use(express.json());
@@ -31,8 +31,8 @@ app.get('/', (req, res) => {
     res.setHeader('Content-Type', 'application/json');
     res.json({
         title: "Node.JS REST DB",
-        version: version.version,
-        build: version.build,
+        version: project.version,
+        build: project.build,
         develop: process.env.NODE_ENV === 'test',
         endpoints: [
             "/v1"
@@ -44,8 +44,8 @@ app.get('/v1', (req, res) => {
     res.setHeader('Content-Type', 'application/json');
     res.json({
         title: "Node.JS REST DB",
-        version: version.version,
-        build: version.build,
+        version: project.version,
+        build: project.build,
         develop: process.env.NODE_ENV === 'test',
         endpoints: [
             "/db"
@@ -53,8 +53,8 @@ app.get('/v1', (req, res) => {
     });
 });
 
-const db_v1 = require('./API/v1/db');
+import db_v1 = require("./API/v1/db");
 app.use('/v1/db', db_v1);
 
 const PORT = process.env.PORT || 3000;
-module.exports = app.listen(PORT, () => console.log(`Listening on port ${PORT}...`));
+export = app.listen(PORT, () => console.log(`Listening on port ${PORT}...`));

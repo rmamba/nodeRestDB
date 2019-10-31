@@ -1,11 +1,10 @@
-/*jslint es6 node:true */
 "use strict";
 
-const fs = require('fs');
-const express = require('express');
-const router = express.Router();
+import fs from "fs";
+import express from "express";
+import Helper from "./helper";
 
-const Helper = require('./helper');
+const router = express.Router();
 
 if (fs.existsSync('../../config/cors.js')) {
     const cors = require('../../config/cors');
@@ -121,6 +120,11 @@ router.post('/', function(req, res) {
     if (isDebug) {
         console.log(`PATH: ${path}`);
     }
+
+    if (req.headers.secret instanceof Array) {
+      throw new Error('Secret can not be array.');
+    }
+
     var data = DATA;
     if (req.headers.secret) {
         if (!PrivateDATA.hasOwnProperty(req.headers.secret)) {
@@ -173,6 +177,11 @@ router.put('/', function(req, res) {
     if (isDebug) {
         console.log(`PATH: ${path}`);
     }
+
+    if (req.headers.secret instanceof Array) {
+      throw new Error('Secret can not be array.');
+    }
+
     var data = DATA;
     if (req.headers.secret) {
         if (!PrivateDATA.hasOwnProperty(req.headers.secret)) {
@@ -235,18 +244,18 @@ router.put('/', function(req, res) {
  *
  * @apiUse ReturnErrorMessage
  */
-router.delete('/', function(req, res) {
-    if (!Helper.auth.admin(req, res)) { return; }
-    var from = new Date(Date.now() - 3 * 3600 * 24 * 1000);
-    if (req.query.hasOwnProperty('fromDate')) {
-        from = new Date(req.query.fromDate);
-    }
-    var orders = fsc.getBrokenOrders(from.toString());
-    var result = {
-        orders: orders
-    };
+// router.delete('/', function(req, res) {
+//     if (!Helper.auth.admin(req, res)) { return; }
+//     var from = new Date(Date.now() - 3 * 3600 * 24 * 1000);
+//     if (req.query.hasOwnProperty('fromDate')) {
+//         from = new Date(req.query.fromDate);
+//     }
+//     var orders = fsc.getBrokenOrders(from.toString());
+//     var result = {
+//         orders: orders
+//     };
 
-    Helper.returnJSON(res, result);
-});
+//     Helper.returnJSON(res, result);
+// });
 
-module.exports = router;
+export = router;
