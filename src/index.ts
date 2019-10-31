@@ -1,8 +1,5 @@
 "use strict";
 
-process.env.NODE_ENV = "test";
-process.env.NodeDB_DEBUG = "true";
-
 import compression from "compression";
 import express from "express";
 import project from "./version";

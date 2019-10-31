@@ -69,11 +69,12 @@ router.get("/*", (req, res) => {
     console.log(`PATH: ${path}`);
   }
   let data = DATA;
-  if (req.query.secret) {
-    if (!PrivateDATA.hasOwnProperty(req.query.secret)) {
-      PrivateDATA[req.query.secret] = {};
+  const secret = req.query.secret || req.headers.secret;
+  if (secret) {
+    if (!PrivateDATA.hasOwnProperty(secret)) {
+      PrivateDATA[secret] = {};
     }
-    data = PrivateDATA[req.query.secret];
+    data = PrivateDATA[secret];
   }
   for (let i = 0; i < path.length; i++) {
     const p = path[i];
@@ -146,7 +147,7 @@ router.post("/*", (req, res) => {
     data = PrivateDATA[req.headers.secret];
   }
   let p;
-  for (let i=0; i<path.length; i++) {
+  for (let i = 0; i < path.length; i++) {
     p = path[i];
     if (!data[p]) {
       data[p] = {};

@@ -1,17 +1,24 @@
-FROM node:10
+FROM node:10-alpine as build
 
 WORKDIR /usr/src/app
 
-COPY package.json ./
+COPY . $WORKDIR
 
 RUN npm install
-
-RUN npm install pm2 -g
-
 RUN npm run build
 
-COPY ./dist .
+# COPY ./dist .
+FROM node:10-alpine
 
-EXPOSE 4000
+WORKDIR /usr/src/app
+
+COPY --from=build /usr/src/app/package.json $WORKDIR
+
+RUN npm install
+RUN npm install pm2 -g
+
+COPY --from=build /usr/src/app/dist $WORKDIR
+
+EXPOSE 3000
 
 CMD ["pm2-runtime", "index.js"]
