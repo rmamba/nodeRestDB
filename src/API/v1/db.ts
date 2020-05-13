@@ -1,280 +1,277 @@
-"use strict";
+"use strict"
 
-import express from "express";
-import fs from "fs";
-import cors from "../../config/cors";
-import Helper from "./helper";
+import express from "express"
+import fs from "fs"
+import cors from "../../config/cors"
+import Helper from "./helper"
 
-const router = express.Router();
+const router = express.Router()
 
 if (fs.existsSync("../../config/cors.js")) {
-  router.use(cors);
+  router.use(cors)
 }
 
 // if (fs.existsSync("../../config/admin.js")) {
-//   import ADMIN from "../../config/admin";
+//   import ADMIN from "../../config/admin"
 // }
 
-const DATA = {};
-const PrivateDATA = {};
-const isDebug = process.env.NodeDB_DEBUG === "true";
+const DATA = {}
+const PrivateDATA = {}
+const isDebug = process.env.NodeDB_DEBUG === "true"
 
-// /**
-//  * @apiDefine ReturnErrorMessage
-//  *
-//  * @apiError {json} Error Error message returned.
-//  *
-//  * @apiErrorExample Error-Response:
-//  *     HTTP/1.1 400 Bad Request
-//  *     {
-//  *       "error": "Error message"
-//  *     }
-//  */
+/**
+ * @apiDefine ReturnErrorMessage
+ *
+ * @apiError {json} Error Error message returned.
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 400 Bad Request
+ *     {
+ *       "error": "Error message"
+ *     }
+ */
 
 /**
  * @apiDefine AdminHeader
  *
- * @apiHeader {String} secret You secret key. All data will be saved under this key.
+ * @apiHeader {String} secret Optional secret key. All data will be saved under this key when used.
  *
  */
 
 /**
- * @api {get} /db Get value
+ * @api {get} /v1/db/:path Get value
  * @apiName GetValue
  * @apiGroup db
  * @apiVersion 0.1.1
  *
  * @apiUse AdminHeader
+ * 
+ * @apiParam {String} path JSON path for data to be returned.
  *
- * @apiParam {Number} id Users unique ID.
- *
- * @apiSuccess {Array} daily Daily statistics.
- * @apiSuccess {Array} weekly Statistics based on day of the week.
- * @apiSuccess {Array} hourly Statistics based on the hour of the day.
- * @apiSuccess {Array} status Statistics based on the status of the order.
- * @apiSuccess {Object} statusProducts Statistics grouped by status and products.
- * @apiSuccess {Object} totals Sum of orders for daily statistics.
+ * @apiSuccess {Object} data Returns JSON value for path.
  *
  * @apiSuccessExample Success-Response:
  * HTTP/1.1 200 OK
  * {
- *   "daily": []
+ *   "pi": 3.14
  * }
  *
  * @apiUse ReturnErrorMessage
  */
 router.get("/*", (req, res) => {
-  const path = req.path.substr(1).split("/");
+  const path = req.path.substr(1).split("/")
   if (isDebug) {
-    console.log(`PATH: ${path}`);
+    console.log(`PATH: ${path}`)
   }
-  let data = DATA;
-  const secret = req.query.secret || req.headers.secret;
+  let data = DATA
+  const secret = req.query.secret || req.headers.secret
   if (secret) {
     if (!PrivateDATA.hasOwnProperty(secret)) {
-      PrivateDATA[secret] = {};
+      PrivateDATA[secret] = {}
     }
-    data = PrivateDATA[secret];
+    data = PrivateDATA[secret]
   }
   for (let i = 0; i < path.length; i++) {
-    const p = path[i];
+    const p = path[i]
     if (!data[p]) {
-      i = path.length;
+      i = path.length
     } else {
-      data = data[p];
+      data = data[p]
     }
   }
-  Helper.returnJSON(res, data);
-});
+  Helper.returnJSON(res, data)
+})
 
 /**
- * @api {post} /db Get value
+ * @api {post} /v1/db/:path Save value
  * @apiName PostValue
  * @apiGroup db
  * @apiVersion 0.1.1
  *
  * @apiUse AdminHeader
+ * 
+ * @apiParam {String} path JSON path for data to be written at.
  *
- * @apiSuccess {Object} [pagination] Pagination data.
- * @apiSuccess {Array} orders Array of order data.
+ * @apiSuccess {Object} data Response data.
  *
  * @apiSuccessExample Success-Response:
- * HTTP/1.1 200 OK
+ * HTTP/1.1 201 OK
  * {
- *   "pagination": {
- *     "prev": "2018-11-15T13:41:36.455Z",
- *     "limit": 50,
- *     "next": "2018-11-14T09:14:42.420Z"
- *   },
- *   "orders": [
- *     {
- *         orderData
- *     }
- *   ]
+ *   "message": "OK"
  * }
  *
  * @apiUse ReturnErrorMessage
  */
 router.post("/*", (req, res) => {
-  const path = req.path.substr(1).split("/");
+  const path = req.path.substr(1).split("/")
   if (isDebug) {
-    console.log(`PATH: ${path}`);
+    console.log(`PATH: ${path}`)
   }
 
   if (req.headers.data instanceof Array) {
-    throw new Error("Data can not be array.");
+    Helper.returnJSON(res, {
+      error: "Data can not be array"
+    }, 400)
+    return
   }
-  let value;
+
+  let value
   if (typeof req.headers.data === "number") {
-    value = parseFloat(req.headers.data);
+    value = parseFloat(req.headers.data)
   } else {
     try {
-      value = JSON.parse(req.headers.data);
+      value = JSON.parse(req.headers.data)
     } catch (e) {
-      value = req.headers.data;
+      value = req.headers.data
     }
   }
 
   if (req.headers.secret instanceof Array) {
-    throw new Error("Secret can not be array.");
+    Helper.returnJSON(res, {
+      error: "Secret can not be array"
+    }, 400)
+    return
   }
 
-  let data = DATA;
+  let data = DATA
   if (req.headers.secret) {
     if (!PrivateDATA.hasOwnProperty(req.headers.secret)) {
-      PrivateDATA[req.headers.secret] = {};
+      PrivateDATA[req.headers.secret] = {}
     }
-    data = PrivateDATA[req.headers.secret];
+    data = PrivateDATA[req.headers.secret]
   }
-  let p;
+  let p
   for (let i = 0; i < path.length; i++) {
-    p = path[i];
+    p = path[i]
     if (!data[p]) {
-      data[p] = {};
+      data[p] = {}
     }
     if (i < (path.length - 1)) {
-      data = data[p];
+      data = data[p]
     }
   }
-  data[p] = value;
+  data[p] = value
   Helper.returnJSON(res, {
-    code: 1
-  });
-});
+    message: "OK"
+  }, 201)
+})
 
 /**
- * @api {put} /db Save value
+ * @api {put} /v1/db Save value
  * @apiName PutValue
  * @apiGroup db
  * @apiVersion 0.1.1
  *
  * @apiUse AdminHeader
  *
- * @apiSuccess {Object} [pagination] Pagination data.
- * @apiSuccess {Array} orders Array of order data.
+ * @apiParam {String} body.path Path for data to be written at.
+ * @apiParam {Object} data.value JSON data to be saved.
+ * 
+ * @apiSuccess {Object} data Response data.
  *
  * @apiSuccessExample Success-Response:
- * HTTP/1.1 200 OK
+ * HTTP/1.1 201 OK
  * {
- *   "pagination": {
- *     "prev": "2018-11-15T13:41:36.455Z",
- *     "limit": 50,
- *     "next": "2018-11-14T09:14:42.420Z"
- *   },
- *   "orders": [
- *     {
- *         orderData
- *     }
- *   ]
+ *   "message": "OK"
  * }
  *
  * @apiUse ReturnErrorMessage
  */
 router.put("/", (req, res) => {
-  let path = req.body.path || "";
-  path = path.split("/");
+  let path = req.body.path || ""
+  path = path.split("/")
   if (isDebug) {
-    console.log(`PATH: ${path}`);
+    console.log(`PATH: ${path}`)
   }
 
   if (req.headers.secret instanceof Array) {
-    throw new Error("Secret can not be array.");
+    Helper.returnJSON(res, {
+      error: "Secret can not be array"
+    }, 400)
+    return
   }
 
-  let data = DATA;
+  let data = DATA
   if (req.headers.secret) {
     if (!PrivateDATA.hasOwnProperty(req.headers.secret)) {
-      PrivateDATA[req.headers.secret] = {};
+      PrivateDATA[req.headers.secret] = {}
     }
-    data = PrivateDATA[req.headers.secret];
+    data = PrivateDATA[req.headers.secret]
   }
-  let p;
+  let p
   for (let i = 0; i < path.length - 1; i++) {
-    p = path[i];
+    p = path[i]
     if (!data[p]) {
-      data[p] = {};
+      data[p] = {}
     } else {
       if (typeof data[p] !== "object") {
-        data[p] = {};
+        data[p] = {}
       }
     }
-    data = data[p];
+    data = data[p]
   }
-  p = path[path.length - 1];
+  p = path[path.length - 1]
   if (!isNaN(req.body.value)) {
-    data[p] = parseFloat(req.body.value);
+    data[p] = parseFloat(req.body.value)
   } else {
     try {
-      data[p] = JSON.parse(req.body.value);
+      data[p] = JSON.parse(req.body.value)
     } catch (e) {
-      data[p] = req.body.value;
+      data[p] = req.body.value
     }
   }
   Helper.returnJSON(res, {
-    code: 1
-  });
-});
+    message: "OK"
+  }, 201)
+})
 
 /**
- * @api {delete} /v1/db Delete value
+ * @api {delete} /v1/db/:path Delete value
  * @apiName DeleteValue
  * @apiGroup db
  * @apiVersion 0.1.2
  *
  * @apiUse AdminHeader
+ * 
+ * @apiParam {String} path JSON path for data to be deleted at.
  *
- * @apiSuccess {Object} [pagination] Pagination data.
- * @apiSuccess {Array} orders Array of order data.
+ * @apiSuccess {Object} data Response data.
  *
  * @apiSuccessExample Success-Response:
  * HTTP/1.1 200 OK
  * {
- *   "pagination": {
- *     "prev": "2018-11-15T13:41:36.455Z",
- *     "limit": 50,
- *     "next": "2018-11-14T09:14:42.420Z"
- *   },
- *   "orders": [
- *     {
- *         orderData
- *     }
- *   ]
+ *   "message": "OK"
  * }
  *
  * @apiUse ReturnErrorMessage
  */
-// router.delete('/', (req, res) => {
-//     if (!Helper.auth.admin(req, res)) { return; }
-//     var from = new Date(Date.now() - 3 * 3600 * 24 * 1000);
-//     if (req.query.hasOwnProperty('fromDate')) {
-//         from = new Date(req.query.fromDate);
-//     }
-//     var orders = fsc.getBrokenOrders(from.toString());
-//     var result = {
-//         orders: orders
-//     };
+router.delete('/*', (req, res) => {
+  const path = req.path.substr(1).split("/")
+  if (isDebug) {
+    console.log(`PATH: ${path}`)
+  }
+  let data = DATA
+  const secret = req.query.secret || req.headers.secret
+  if (secret) {
+    if (!PrivateDATA.hasOwnProperty(secret)) {
+      PrivateDATA[secret] = {}
+    }
+    data = PrivateDATA[secret]
+  }
+  let p
+  for (let i = 0; i < path.length; i++) {
+    p = path[i]
+    if (!data[p]) {
+      data[p] = {}
+    }
+    if (i < (path.length - 1)) {
+      data = data[p]
+    }
+  }
+  delete data[p]
+  Helper.returnJSON(res, {
+    message: "OK"
+  }, 200)
+})
 
-//     Helper.returnJSON(res, result);
-// });
-
-export = router;
+export = router

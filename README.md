@@ -1,4 +1,4 @@
-# nodeRestDB
+# JsonDB
 This is a NodeJS version of my original pyRestDB.
 It is now actually rewriten in TypeScrypt.
 I rewrote it just for fun as I started working with NodeJS more and was currious.
@@ -24,22 +24,23 @@ If you want a docker container you can build it with:
 docker build .
 ```
 
-Service is available locally on port 3000 by default `http://localhost:3000`
+Service is available locally on port 16379 by default `http://localhost:16379`
 
 # Write data with POST method
 If we execute this `POST` post command:
 ```
-http POST :3000/v1/db/test/test2/test3 data:'{"thirteen":13, "pi":3.14}'
+http POST :16379/v1/db/test/test2/test3 data:'{"thirteen":13, "pi":3.14}'
 #returns {code: 1} on success
 ```
-We will write the date into the in memory JSON structure.
+We will write the data into the in memory JSON structure.
 If the path `test/test2/test3` does not exist, it will be created.
-When it exists it will be overriden! After this operation you can read out the values.
+When the path exist, this operation, will override the data!
+After this operation you can read out the values.
 
 # Reading data
 Call to:
 ```
-http GET :3000/db/v1/test/test2/test3
+http GET :16379/db/v1/test/test2/test3
 ```
 Will return:
 ```JSON
@@ -50,7 +51,7 @@ Will return:
 ```
 How ever a call to:
 ```
-http GET :3000/db/v1/test/test2/test3/pi
+http GET :16379/db/v1/test/test2/test3/pi
 ```
 Will return:
 ```
@@ -58,7 +59,7 @@ Will return:
 ```
 Where as call to:
 ```
-http GET :3000/db/v1/test
+http GET :16379/db/v1/test
 ```
 Will return:
 ```
@@ -76,7 +77,7 @@ As you can see you can read as much data as you want or you can go as deep along
 # Write data with PUT command
 `PUT` command works a bit differently than `POST`. But you can achieve the same result with both of them. With `PUT` command you send the data in the request body which is a JSON with `path` and `value` parameters. For example if we want to get same result as with the `POST` example above we would execute:
 ```
-http PUT :3000/v1/db path:'test/test2/test3' value:'{"thirteen":13, "pi":3.14}'
+http PUT :16379/v1/db path:'test/test2/test3' value:'{"thirteen":13, "pi":3.14}'
 ```
 This will write the same data to the in memmory JSON structure as our POST example above.
 When sending data programatically a JSON structure of the body would look like this:
@@ -94,12 +95,15 @@ When sending data programatically a JSON structure of the body would look like t
 In case you need it, there is a simple way to hide your data from public view. Simply add `secret` field to the `headers` of your requests. With this all your data will go into a separate in memmory structure that can only be accessed with your secret key.
 For example here is the same request as above but with a secret set in request header.
 ```
-http POST :3000/v1/db/test/test2/test3 data:'{"krneki13":13, "butast":3.14}' secret:'mySuperSecret'
+http POST :16379/v1/db/test/test2/test3 data:'{"krneki13":13, "butast":3.14}' secret:'mySuperSecret'
 ```
 It makes sense to choose a secure secret, you can generate a GUID string or simmilar and use that as your secret.
 
 # ToDO
 - [ ] Write tests
-- [ ] Fix delete
+- [x] Implement delete
 - [ ] Implement admin
 - [ ] Implement security
+- [ ] Implement record expiration
+- [ ] Create nodejs client module based on Redis?
+- [ ] Code examples in PHP, NodeJS, Python...

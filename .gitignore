@@ -63,5 +63,7 @@ typings/
 package-lock.json
 .vscode
 config
-apidoc
 dist
+
+# ToDO
+docs

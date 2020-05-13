@@ -12,7 +12,7 @@
     "prebuild": "tslint -c tslint.json -p tsconfig.json --fix",
     "build": "tsc -p .",
     "build:live": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/index.ts",
-    "docs": "./node_modules/.bin/apidoc -i API/ -o apidoc/",
+    "docs": "./node_modules/.bin/apidoc -i src/API/ -o docs/",
     "test": "./node_modules/.bin/tap -j8 test/*Test.js -T --cov --coverage-report=html",
     "testCache": "./node_modules/.bin/tap test/cacheTest.js",
     "testNotifyAPI": "./node_modules/.bin/mocha ./testAPI/notifyApiTest.js --exit --timeout=5000"
@@ -27,7 +27,9 @@
   "devDependencies": {
     "@types/mocha": "^5.2.7",
     "@types/node": "^12.12.3",
+    "apidoc": "^0.22.1",
     "nodemon": "^1.19.4",
+    "tap": "^14.10.7",
     "ts-node": "^8.4.1",
     "tslint": "^5.20.0",
     "typescript": "^3.6.4"
