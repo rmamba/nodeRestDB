@@ -45,7 +45,7 @@ const isDebug = process.env.NodeDB_DEBUG === "true"
  * @apiVersion 0.1.1
  *
  * @apiUse AdminHeader
- * 
+ *
  * @apiParam {String} path JSON path for data to be returned.
  *
  * @apiSuccess {Object} data Returns JSON value for path.
@@ -64,7 +64,7 @@ router.get("/*", (req, res) => {
     console.log(`PATH: ${path}`)
   }
   let data = DATA
-  const secret = req.query.secret || req.headers.secret
+  const secret = req.query.secret ? req.query.secret.toString() : req.header('secret')
   if (secret) {
     if (!PrivateDATA.hasOwnProperty(secret)) {
       PrivateDATA[secret] = {}
@@ -89,7 +89,7 @@ router.get("/*", (req, res) => {
  * @apiVersion 0.1.1
  *
  * @apiUse AdminHeader
- * 
+ *
  * @apiParam {String} path JSON path for data to be written at.
  *
  * @apiSuccess {Object} data Response data.
@@ -108,37 +108,23 @@ router.post("/*", (req, res) => {
     console.log(`PATH: ${path}`)
   }
 
-  if (req.headers.data instanceof Array) {
-    Helper.returnJSON(res, {
-      error: "Data can not be array"
-    }, 400)
-    return
-  }
-
   let value
-  if (typeof req.headers.data === "number") {
-    value = parseFloat(req.headers.data)
+  if (typeof req.header('data') === "number") {
+    value = parseFloat(req.header('data'))
   } else {
     try {
-      value = JSON.parse(req.headers.data)
+      value = JSON.parse(req.header('data'))
     } catch (e) {
-      value = req.headers.data
+      value = req.header('data')
     }
-  }
-
-  if (req.headers.secret instanceof Array) {
-    Helper.returnJSON(res, {
-      error: "Secret can not be array"
-    }, 400)
-    return
   }
 
   let data = DATA
-  if (req.headers.secret) {
-    if (!PrivateDATA.hasOwnProperty(req.headers.secret)) {
-      PrivateDATA[req.headers.secret] = {}
+  if (req.header('secret')) {
+    if (!PrivateDATA.hasOwnProperty(req.header('secret'))) {
+      PrivateDATA[req.header('secret')] = {}
     }
-    data = PrivateDATA[req.headers.secret]
+    data = PrivateDATA[req.header('secret')]
   }
   let p
   for (let i = 0; i < path.length; i++) {
@@ -166,7 +152,7 @@ router.post("/*", (req, res) => {
  *
  * @apiParam {String} body.path Path for data to be written at.
  * @apiParam {Object} data.value JSON data to be saved.
- * 
+ *
  * @apiSuccess {Object} data Response data.
  *
  * @apiSuccessExample Success-Response:
@@ -184,19 +170,12 @@ router.put("/", (req, res) => {
     console.log(`PATH: ${path}`)
   }
 
-  if (req.headers.secret instanceof Array) {
-    Helper.returnJSON(res, {
-      error: "Secret can not be array"
-    }, 400)
-    return
-  }
-
   let data = DATA
-  if (req.headers.secret) {
-    if (!PrivateDATA.hasOwnProperty(req.headers.secret)) {
-      PrivateDATA[req.headers.secret] = {}
+  if (req.header('secret')) {
+    if (!PrivateDATA.hasOwnProperty(req.header('secret'))) {
+      PrivateDATA[req.header('secret')] = {}
     }
-    data = PrivateDATA[req.headers.secret]
+    data = PrivateDATA[req.header('secret')]
   }
   let p
   for (let i = 0; i < path.length - 1; i++) {
@@ -232,7 +211,7 @@ router.put("/", (req, res) => {
  * @apiVersion 0.1.2
  *
  * @apiUse AdminHeader
- * 
+ *
  * @apiParam {String} path JSON path for data to be deleted at.
  *
  * @apiSuccess {Object} data Response data.
@@ -251,7 +230,7 @@ router.delete('/*', (req, res) => {
     console.log(`PATH: ${path}`)
   }
   let data = DATA
-  const secret = req.query.secret || req.headers.secret
+  const secret = req.query.secret ? req.query.secret.toString() : req.header('secret')
   if (secret) {
     if (!PrivateDATA.hasOwnProperty(secret)) {
       PrivateDATA[secret] = {}

@@ -1,14 +1,14 @@
-FROM node:10-alpine as build
+FROM node:14-alpine as build
 
 WORKDIR /usr/src/app
 
 COPY . ./
 
-RUN npm install
-RUN npm run build
+RUN yarn install --production=false
+RUN yarn run build
 
-# COPY ./dist .
-FROM node:10-alpine
+FROM node:14-alpine
+LABEL org.opencontainers.image.authors="rmamba@gmail.com"
 
 WORKDIR /usr/src/app
 

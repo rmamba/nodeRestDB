@@ -8,14 +8,14 @@ This in memory JSON structure prolongs the lifespan of the SD card as we only wr
 # Installation
 To play with it locally you can pull the `git` repository and run these commands:
 ```
-npm install
-npm start
+yarn install
+yarn start
 ```
 
 You can also compile the project and run it with node:
 ```
-npm install
-npm run build
+yarn install
+yarn run build
 node dist/index.js
 ```
 
