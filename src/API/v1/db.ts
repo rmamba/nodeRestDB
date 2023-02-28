@@ -1,15 +1,9 @@
 "use strict"
 
 import express from "express"
-import fs from "fs"
-import cors from "../../config/cors"
 import Helper from "./helper"
 
 const router = express.Router()
-
-if (fs.existsSync("../../config/cors.js")) {
-  router.use(cors)
-}
 
 // if (fs.existsSync("../../config/admin.js")) {
 //   import ADMIN from "../../config/admin"
@@ -59,10 +53,11 @@ const isDebug = process.env.NodeDB_DEBUG === "true"
  * @apiUse ReturnErrorMessage
  */
 router.get("/*", (req, res) => {
-  const path = req.path.substr(1).split("/")
+  const path = req.path.substring(1).split("/")
   if (isDebug) {
     console.log(`PATH: ${path}`)
   }
+  
   let data = DATA
   const secret = req.query.secret ? req.query.secret.toString() : req.header('secret')
   if (secret) {
@@ -71,14 +66,15 @@ router.get("/*", (req, res) => {
     }
     data = PrivateDATA[secret]
   }
-  for (let i = 0; i < path.length; i++) {
-    const p = path[i]
+
+  for (let p of path) {
     if (!data[p]) {
-      i = path.length
+      break;
     } else {
       data = data[p]
     }
   }
+
   Helper.returnJSON(res, data)
 })
 
@@ -103,12 +99,12 @@ router.get("/*", (req, res) => {
  * @apiUse ReturnErrorMessage
  */
 router.post("/*", (req, res) => {
-  const path = req.path.substr(1).split("/")
+  const path = req.path.substring(1).split("/")
   if (isDebug) {
     console.log(`PATH: ${path}`)
   }
 
-  let value
+  let value: number | string
   if (typeof req.header('data') === "number") {
     value = parseFloat(req.header('data'))
   } else {
@@ -126,7 +122,8 @@ router.post("/*", (req, res) => {
     }
     data = PrivateDATA[req.header('secret')]
   }
-  let p
+
+  let p: string
   for (let i = 0; i < path.length; i++) {
     p = path[i]
     if (!data[p]) {
@@ -136,6 +133,7 @@ router.post("/*", (req, res) => {
       data = data[p]
     }
   }
+
   data[p] = value
   Helper.returnJSON(res, {
     message: "OK"
@@ -177,7 +175,8 @@ router.put("/", (req, res) => {
     }
     data = PrivateDATA[req.header('secret')]
   }
-  let p
+
+  let p: string
   for (let i = 0; i < path.length - 1; i++) {
     p = path[i]
     if (!data[p]) {
@@ -189,6 +188,7 @@ router.put("/", (req, res) => {
     }
     data = data[p]
   }
+
   p = path[path.length - 1]
   if (!isNaN(req.body.value)) {
     data[p] = parseFloat(req.body.value)
@@ -199,6 +199,7 @@ router.put("/", (req, res) => {
       data[p] = req.body.value
     }
   }
+
   Helper.returnJSON(res, {
     message: "OK"
   }, 201)
@@ -225,7 +226,7 @@ router.put("/", (req, res) => {
  * @apiUse ReturnErrorMessage
  */
 router.delete('/*', (req, res) => {
-  const path = req.path.substr(1).split("/")
+  const path = req.path.substring(1).split("/")
   if (isDebug) {
     console.log(`PATH: ${path}`)
   }
@@ -237,7 +238,8 @@ router.delete('/*', (req, res) => {
     }
     data = PrivateDATA[secret]
   }
-  let p
+
+  let p: string
   for (let i = 0; i < path.length; i++) {
     p = path[i]
     if (!data[p]) {
@@ -247,6 +249,7 @@ router.delete('/*', (req, res) => {
       data = data[p]
     }
   }
+
   delete data[p]
   Helper.returnJSON(res, {
     message: "OK"

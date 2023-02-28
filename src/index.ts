@@ -2,10 +2,12 @@
 
 import compression from "compression";
 import express from "express";
+import cors from "cors";
 import project from "./version";
 
 const app: express.Application = express();
 app.use(express.json());
+app.use(cors());
 
 if (process.env.NodeDB_COMPRESSION === "true") {
   function shouldCompress(req, res) {
