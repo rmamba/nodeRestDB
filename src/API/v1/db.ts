@@ -53,11 +53,14 @@ const isDebug = process.env.NodeDB_DEBUG === "true"
  * @apiUse ReturnErrorMessage
  */
 router.get("/*", (req, res) => {
-  const path = req.path.substring(1).split("/")
+  let path = []
+  if (req.path !== '/') {
+    path = req.path.substring(1).split("/")
+  }
   if (isDebug) {
     console.log(`PATH: ${path}`)
   }
-  
+
   let data = DATA
   const secret = req.query.secret ? req.query.secret.toString() : req.header('secret')
   if (secret) {
@@ -67,7 +70,7 @@ router.get("/*", (req, res) => {
     data = PrivateDATA[secret]
   }
 
-  for (let p of path) {
+  for (const p of path) {
     if (!data[p]) {
       break;
     } else {
@@ -99,7 +102,10 @@ router.get("/*", (req, res) => {
  * @apiUse ReturnErrorMessage
  */
 router.post("/*", (req, res) => {
-  const path = req.path.substring(1).split("/")
+  let path = []
+  if (req.path !== '/') {
+    path = req.path.substring(1).split("/")
+  }
   if (isDebug) {
     console.log(`PATH: ${path}`)
   }
@@ -134,7 +140,13 @@ router.post("/*", (req, res) => {
     }
   }
 
-  data[p] = value
+  if (p) {
+    data[p] = value
+  } else {
+    Object.keys(value).forEach(k => {
+      data[k] = value[k]
+    })
+  }
   Helper.returnJSON(res, {
     message: "OK"
   }, 201)
