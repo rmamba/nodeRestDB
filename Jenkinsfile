@@ -10,12 +10,13 @@ pipeline {
     }
 
     stages {
-        stage('Docker Build') {
+        stage('Docker:latest') {
             steps {
                 sh "docker build --build-arg debug_mode=--no-dev -t rmamba/node-rest-db:latest ."
+                sh "docker push rmamba/node-rest-db:latest"
             }
         }
-        stage('Docker:latest') {
+        stage('Docker:14-alpine') {
             steps {
                 sh "docker tag rmamba/node-rest-db:latest rmamba/node-rest-db:14-alpine"
                 sh "docker push rmamba/node-rest-db:14-alpine"
