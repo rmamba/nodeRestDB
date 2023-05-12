@@ -1,4 +1,4 @@
-# JsonDB
+# nodeRestDB
 This is a NodeJS version of my original pyRestDB.
 It is now actually rewriten in TypeScrypt.
 I rewrote it just for fun as I started working with NodeJS more and was currious.
