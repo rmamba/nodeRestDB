@@ -1,13 +1,11 @@
-FROM node:14-alpine as build
+FROM node:20-alpine as build
 
 WORKDIR /usr/src/app
 
 COPY . .
+RUN yarn install --production=false && yarn build
 
-RUN yarn install --production=false
-RUN yarn build
-
-FROM node:14-alpine
+FROM node:20-alpine
 LABEL org.opencontainers.image.authors="rmamba@gmail.com"
 
 WORKDIR /usr/src/app
