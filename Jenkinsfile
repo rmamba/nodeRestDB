@@ -16,18 +16,18 @@ pipeline {
                 sh "docker push rmamba/node-rest-db:latest"
             }
         }
-        stage('Docker:14-alpine') {
+        stage('Docker:20-alpine') {
             steps {
-                sh "docker tag rmamba/node-rest-db:latest rmamba/node-rest-db:14-alpine"
-                sh "docker push rmamba/node-rest-db:14-alpine"
-                sh "docker rmi rmamba/node-rest-db:14-alpine"
+                sh "docker tag rmamba/node-rest-db:latest rmamba/node-rest-db:20-alpine"
+                sh "docker push rmamba/node-rest-db:20-alpine"
+                sh "docker rmi rmamba/node-rest-db:20-alpine"
             }
         }
         stage('Docker:tag') {
             steps {
-                sh "docker tag rmamba/node-rest-db:latest rmamba/node-rest-db:14-alpine-${params.gitLabel}"
-                sh "docker push rmamba/node-rest-db:14-alpine-${params.gitLabel}"
-                sh "docker rmi rmamba/node-rest-db:14-alpine-${params.gitLabel}"
+                sh "docker tag rmamba/node-rest-db:latest rmamba/node-rest-db:20-alpine-${params.gitLabel}"
+                sh "docker push rmamba/node-rest-db:20-alpine-${params.gitLabel}"
+                sh "docker rmi rmamba/node-rest-db:20-alpine-${params.gitLabel}"
             }
         }
     }
