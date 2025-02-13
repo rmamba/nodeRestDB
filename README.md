@@ -27,11 +27,20 @@ docker build .
 Service is available locally on port 16379 by default `http://localhost:16379`
 
 # Write data with POST method
-If we execute this `POST` post command:
+If we execute this `POST` post command with header data:
 ```
 http POST :16379/v1/db/test/test2/test3 data:'{"thirteen":13, "pi":3.14}'
-#returns {code: 1} on success
+curl -X POST http://localhost:16379/v1/db/test/test2/test4 -H "data:{\"thirteen\":13, \"pi\":3.14}"
+#returns {"message": "OK"} on success
 ```
+
+You can also pass the data in the body as long as `Content-Type` is set to `application/json`:
+```
+http POST :16379/v1/db/test/test2/test3 <<<'{"thirteen":13, "pi":3.14}'
+curl -X POST http://localhost:16379/v1/db/test/test2/test3 -H "Content-Type: application/json" -d '{"thirteen":13, "pi":3.14}'
+#Again it will return {"message": "OK"} on success
+```
+
 We will write the data into the in memory JSON structure.
 If the path `test/test2/test3` does not exist, it will be created.
 When the path exist, this operation, will override the data!
@@ -91,6 +100,25 @@ When sending data programatically a JSON structure of the body would look like t
 }
 ```
 
+# Delete data with DELETE command
+`PUT` command works a bit differently than `POST`. But you can achieve the same result with both of them. With `PUT` command you send the data in the request body which is a JSON with `path` and `value` parameters. For example if we want to get same result as with the `POST` example above we would execute:
+```
+http DELETE :16379/v1/db path:'test/test2/test3/thirteen'
+curl -X DELETE http://localhost:16379/v1/db/test/test2/test3/thirteen
+```
+This will delete the same `thirteen` portion of the JSON structure makeing it look like this:
+```JSON
+{
+  "test": {
+    "test2": {
+      "test3": {
+        "pi": 3.14
+      }
+    }
+  }
+}
+```
+
 # Hiding your data:
 In case you need it, there is a simple way to hide your data from public view. Simply add `secret` field to the `headers` of your requests. With this all your data will go into a separate in memmory structure that can only be accessed with your secret key.
 For example here is the same request as above but with a secret set in request header.
@@ -104,6 +132,7 @@ It makes sense to choose a secure secret, you can generate a GUID string or simm
 - [x] Implement delete
 - [ ] Implement admin
 - [ ] Implement security
+- [ ] Implement static content
 - [ ] Implement record expiration
 - [ ] Create nodejs client module based on Redis?
 - [ ] Code examples in PHP, NodeJS, Python...

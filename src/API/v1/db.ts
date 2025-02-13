@@ -111,14 +111,25 @@ router.post("/*", (req, res) => {
   }
 
   let value: number | string
-  if (typeof req.header('data') === "number") {
-    value = parseFloat(req.header('data'))
+  let source = req.header('data')
+  if (req.header('content-type') === "application/json") {
+    source = req.body
+  }
+
+  if (typeof source === "number") {
+    value = parseFloat(source)
   } else {
     try {
-      value = JSON.parse(req.header('data'))
+      value = JSON.parse(source)
     } catch (e) {
-      value = req.header('data')
+      value = source
     }
+  }
+
+  if (!value) {
+    Helper.returnJSON(res, {
+      message: "No data provided"
+    }, 400)
   }
 
   let data = DATA
