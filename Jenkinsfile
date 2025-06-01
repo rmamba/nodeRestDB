@@ -10,11 +10,16 @@ pipeline {
     }
 
     stages {
-        stage('Test') {
+        stage('Build') {
             steps {
                 sh "yarn install"
                 sh "yarn build"
+            }
+        }
+        stage('Publish Test results') {
+            steps {
                 sh "yarn test"
+                junit "junit.xml"
             }
         }
         stage('Docker:latest') {
