@@ -32,8 +32,19 @@ export = {
     res.send(html);
   },
   returnJSON: function returnJSON(res, json, status = 200) {
-    res.setHeader("Content-Type", "application/json");
+    const checkDict = v => v !== undefined && v !== null && v.constructor === Object;
+    const isDict = checkDict(json);
     res.status(status);
-    res.json(json);
+    if (isDict) {
+      res.setHeader("Content-Type", "application/json");
+      res.json(json);
+    } else {
+      res.setHeader("Content-Type", "text/plain");
+      if (typeof json === 'number') {
+        res.send(json.toString());
+      } else {
+        res.send(json);
+      }
+    }
   },
 };

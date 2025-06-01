@@ -1,17 +1,17 @@
 "use strict"
 
-import express from "express"
-import Helper from "./helper"
+import express from "express";
+import Helper from "./helper";
 
-const router = express.Router()
+const router = express.Router();
 
 // if (fs.existsSync("../../config/admin.js")) {
 //   import ADMIN from "../../config/admin"
 // }
 
-const DATA = {}
-const PrivateDATA = {}
-const isDebug = process.env.NodeDB_DEBUG === "true"
+const DATA = {};
+const PrivateDATA = {};
+const isDebug = process.env.NodeDB_DEBUG === "true";
 
 /**
  * @apiDefine ReturnErrorMessage
@@ -53,33 +53,33 @@ const isDebug = process.env.NodeDB_DEBUG === "true"
  * @apiUse ReturnErrorMessage
  */
 router.get("/*", (req, res) => {
-  let path = []
+  let path = [];
   if (req.path !== '/') {
-    path = req.path.substring(1).split("/")
+    path = req.path.substring(1).split("/");
   }
   if (isDebug) {
-    console.log(`PATH: ${path}`)
+    console.log(`PATH: ${path}`);
   }
 
-  let data = DATA
-  const secret = req.query.secret ? req.query.secret.toString() : req.header('secret')
+  let data = DATA;
+  const secret = req.query.secret ? req.query.secret.toString() : req.header('secret');
   if (secret) {
     if (!PrivateDATA.hasOwnProperty(secret)) {
-      PrivateDATA[secret] = {}
+      PrivateDATA[secret] = {};
     }
-    data = PrivateDATA[secret]
+    data = PrivateDATA[secret];
   }
 
   for (const p of path) {
-    if (!data[p]) {
-      break;
+    if (!(p in data)) {
+      return Helper.returnJSON(res, '');
     } else {
-      data = data[p]
+      data = data[p];
     }
   }
 
-  Helper.returnJSON(res, data)
-})
+  Helper.returnJSON(res, data);
+});
 
 /**
  * @api {post} /v1/db/:path Save value
@@ -102,66 +102,66 @@ router.get("/*", (req, res) => {
  * @apiUse ReturnErrorMessage
  */
 router.post("/*", (req, res) => {
-  let path = []
+  let path = [];
   if (req.path !== '/') {
-    path = req.path.substring(1).split("/")
+    path = req.path.substring(1).split("/");
   }
   if (isDebug) {
-    console.log(`PATH: ${path}`)
+    console.log(`PATH: ${path}`);
   }
 
-  let value: number | string
-  let source = req.header('data')
+  let value: number | string;
+  let source = req.header('data');
   if (req.header('content-type') === "application/json") {
-    source = req.body
+    source = req.body;
   }
 
   if (typeof source === "number") {
-    value = parseFloat(source)
+    value = parseFloat(source);
   } else {
     try {
-      value = JSON.parse(source)
+      value = JSON.parse(source);
     } catch (e) {
-      value = source
+      value = source;
     }
   }
 
   if (!value) {
-    Helper.returnJSON(res, {
+    return Helper.returnJSON(res, {
       message: "No data provided"
-    }, 400)
+    }, 400);
   }
 
-  let data = DATA
+  let data = DATA;
   if (req.header('secret')) {
     if (!PrivateDATA.hasOwnProperty(req.header('secret'))) {
-      PrivateDATA[req.header('secret')] = {}
+      PrivateDATA[req.header('secret')] = {};
     }
-    data = PrivateDATA[req.header('secret')]
+    data = PrivateDATA[req.header('secret')];
   }
 
   let p: string
   for (let i = 0; i < path.length; i++) {
     p = path[i]
-    if (!data[p]) {
-      data[p] = {}
+    if (!(p in data)) {
+      data[p] = {};
     }
     if (i < (path.length - 1)) {
-      data = data[p]
+      data = data[p];
     }
   }
 
   if (p) {
-    data[p] = value
+    data[p] = value;
   } else {
     Object.keys(value).forEach(k => {
-      data[k] = value[k]
+      data[k] = value[k];
     })
   }
   Helper.returnJSON(res, {
     message: "OK"
-  }, 201)
-})
+  }, 201);
+});
 
 /**
  * @api {put} /v1/db Save value
@@ -185,48 +185,48 @@ router.post("/*", (req, res) => {
  * @apiUse ReturnErrorMessage
  */
 router.put("/", (req, res) => {
-  let path = req.body.path || ""
-  path = path.split("/")
+  let path = req.body.path || "";
+  path = path.split("/");
   if (isDebug) {
-    console.log(`PATH: ${path}`)
+    console.log(`PATH: ${path}`);
   }
 
-  let data = DATA
+  let data = DATA;
   if (req.header('secret')) {
     if (!PrivateDATA.hasOwnProperty(req.header('secret'))) {
-      PrivateDATA[req.header('secret')] = {}
+      PrivateDATA[req.header('secret')] = {};
     }
-    data = PrivateDATA[req.header('secret')]
+    data = PrivateDATA[req.header('secret')];
   }
 
   let p: string
   for (let i = 0; i < path.length - 1; i++) {
-    p = path[i]
-    if (!data[p]) {
-      data[p] = {}
+    p = path[i];
+    if (!(p in data)) {
+      data[p] = {};
     } else {
       if (typeof data[p] !== "object") {
-        data[p] = {}
+        data[p] = {};
       }
     }
-    data = data[p]
+    data = data[p];
   }
 
-  p = path[path.length - 1]
+  p = path[path.length - 1];
   if (!isNaN(req.body.value)) {
-    data[p] = parseFloat(req.body.value)
+    data[p] = parseFloat(req.body.value);
   } else {
     try {
-      data[p] = JSON.parse(req.body.value)
+      data[p] = JSON.parse(req.body.value);
     } catch (e) {
-      data[p] = req.body.value
+      data[p] = req.body.value;
     }
   }
 
   Helper.returnJSON(res, {
     message: "OK"
-  }, 201)
-})
+  }, 201);
+});
 
 /**
  * @api {delete} /v1/db/:path Delete value
@@ -249,34 +249,34 @@ router.put("/", (req, res) => {
  * @apiUse ReturnErrorMessage
  */
 router.delete('/*', (req, res) => {
-  const path = req.path.substring(1).split("/")
+  const path = req.path.substring(1).split("/");
   if (isDebug) {
-    console.log(`PATH: ${path}`)
+    console.log(`PATH: ${path}`);
   }
-  let data = DATA
-  const secret = req.query.secret ? req.query.secret.toString() : req.header('secret')
+  let data = DATA;
+  const secret = req.query.secret ? req.query.secret.toString() : req.header('secret');
   if (secret) {
     if (!PrivateDATA.hasOwnProperty(secret)) {
-      PrivateDATA[secret] = {}
+      PrivateDATA[secret] = {};
     }
-    data = PrivateDATA[secret]
+    data = PrivateDATA[secret];
   }
 
   let p: string
   for (let i = 0; i < path.length; i++) {
-    p = path[i]
-    if (!data[p]) {
-      data[p] = {}
+    p = path[i];
+    if (!(p in data)) {
+      data[p] = {};
     }
     if (i < (path.length - 1)) {
-      data = data[p]
+      data = data[p];
     }
   }
 
-  delete data[p]
+  delete data[p];
   Helper.returnJSON(res, {
     message: "OK"
-  }, 200)
-})
+  }, 200);
+});
 
-export = router
+export = router;

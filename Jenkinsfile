@@ -10,6 +10,13 @@ pipeline {
     }
 
     stages {
+        stage('Test') {
+            steps {
+                sh "yarn install"
+                sh "yarn build"
+                sh "yarn test"
+            }
+        }
         stage('Docker:latest') {
             steps {
                 sh "docker build --build-arg debug_mode=--no-dev -t rmamba/node-rest-db:latest ."
