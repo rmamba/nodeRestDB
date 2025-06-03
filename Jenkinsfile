@@ -10,15 +10,13 @@ pipeline {
     }
 
     stages {
-        stage('Build') {
+        stage('Build & Run tests') {
             steps {
-                sh "yarn install"
-                sh "yarn build"
+                sh "docker run -it --rm -v $WORKSPACE:/usr/src/app node:20-alpine test.sh"
             }
         }
         stage('Publish Test results') {
             steps {
-                sh "yarn test"
                 junit "junit.xml"
             }
         }
