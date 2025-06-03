@@ -12,6 +12,9 @@ pipeline {
     stages {
         stage('Build & Run tests') {
             steps {
+                script {
+                    currentBuild.displayName = "${params.gitLabel}"
+                }
                 sh "docker run --rm --entrypoint /bin/ash -w /usr/src/app -u 113:119 -v $WORKSPACE:/usr/src/app node:20-alpine test.sh"
             }
         }
