@@ -12,7 +12,7 @@ pipeline {
     stages {
         stage('Build & Run tests') {
             steps {
-                sh "docker run -it --rm -v $WORKSPACE:/usr/src/app node:20-alpine test.sh"
+                sh "docker run --rm --entrypoint /bin/ash -w /usr/src/app -v $WORKSPACE:/usr/src/app node:20-alpine test.sh"
             }
         }
         stage('Publish Test results') {
