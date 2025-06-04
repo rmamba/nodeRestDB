@@ -1,7 +1,8 @@
 const request = require('supertest');
 const server = require('../dist/index');
 
-const baseURL = '/v1/db/qa-tests/post/json';
+const basePathURL = 'qa-tests/put/json';
+const baseURL = `/v1/db/${basePathURL}`;
 const testData = {
     thirteen: 13, 
     pi: 3.14,
@@ -10,13 +11,17 @@ const testData = {
     subJson: { pi: 3.14 },
     zero: 0,
 };
+const putJSON = {
+    path: 'qa-tests/put/json',
+    value: testData,
+};
 
-describe('Test POST requests', () => {
+describe('Test PUT requests', () => {
 
     beforeAll( async () => {
         const res = await request(server)
-            .post(baseURL)
-            .send(testData);
+            .put('/v1/db')
+            .send(putJSON);
         expect(res.status).toBe(201);
     });
 
@@ -48,8 +53,11 @@ describe('Test POST requests', () => {
 
     it('should update existing JSON data without destruction', async () => {
         await request(server)
-            .post(`${baseURL}/zero`)
-            .set({ data: 'modified!' })
+            .put('/v1/db')
+            .send({
+                path: `${basePathURL}/zero`,
+                value: 'modified!',
+            })
             .expect(201);
 
         let res = await request(server).get(baseURL);
@@ -59,8 +67,11 @@ describe('Test POST requests', () => {
         }, null, 2));
 
         await request(server)
-            .post(`${baseURL}/subArray`)
-            .set({ data: 'modified!' })
+            .put('/v1/db')
+            .send({
+                path: `${basePathURL}/subArray`,
+                value: 'modified!',
+            })
             .expect(201);
         res = await request(server).get(baseURL);
         expect(res.text).toBe(JSON.stringify({
@@ -70,8 +81,11 @@ describe('Test POST requests', () => {
         }, null, 2));
 
         await request(server)
-            .post(`${baseURL}/subJson`)
-            .set({ data: 'modified!' })
+            .put('/v1/db')
+            .send({
+                path: `${basePathURL}/subJson`,
+                value: 'modified!',
+            })
             .expect(201);
         res = await request(server).get(baseURL);
         expect(res.text).toBe(JSON.stringify({
@@ -82,8 +96,11 @@ describe('Test POST requests', () => {
         }, null, 2));
 
         await request(server)
-            .post(`${baseURL}/string`)
-            .set({ data: 'modified!' })
+            .put('/v1/db')
+            .send({
+                path: `${basePathURL}/string`,
+                value: 'modified!',
+            })
             .expect(201);
         res = await request(server).get(baseURL);
         expect(res.text).toBe(JSON.stringify({

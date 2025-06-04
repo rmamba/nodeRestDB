@@ -1,7 +1,7 @@
-"use strict"
+'use strict'
 
-import express from "express";
-import Helper from "./helper";
+import express from 'express';
+import Helper from './helper';
 
 const router = express.Router();
 
@@ -11,7 +11,7 @@ const router = express.Router();
 
 const DATA = {};
 const PrivateDATA = {};
-const isDebug = process.env.NodeDB_DEBUG === "true";
+const isDebug = process.env.NodeDB_DEBUG === 'true';
 
 /**
  * @apiDefine ReturnErrorMessage
@@ -52,10 +52,10 @@ const isDebug = process.env.NodeDB_DEBUG === "true";
  *
  * @apiUse ReturnErrorMessage
  */
-router.get("/*", (req, res) => {
+router.get('/*', (req, res) => {
   let path = [];
   if (req.path !== '/') {
-    path = req.path.substring(1).split("/");
+    path = req.path.substring(1).split('/');
   }
   if (isDebug) {
     console.log(`PATH: ${path}`);
@@ -101,10 +101,10 @@ router.get("/*", (req, res) => {
  *
  * @apiUse ReturnErrorMessage
  */
-router.post("/*", (req, res) => {
+router.post('/*', (req, res) => {
   let path = [];
   if (req.path !== '/') {
-    path = req.path.substring(1).split("/");
+    path = req.path.substring(1).split('/');
   }
   if (isDebug) {
     console.log(`PATH: ${path}`);
@@ -112,23 +112,23 @@ router.post("/*", (req, res) => {
 
   let value: number | string;
   let source = req.header('data');
-  if (req.header('content-type') === "application/json") {
+  if (req.header('content-type') === 'application/json') {
     source = req.body;
   }
 
-  if (typeof source === "number") {
+  if (typeof source === 'number') {
     value = parseFloat(source);
   } else {
     try {
       value = JSON.parse(source);
-    } catch (e) {
+    } catch {
       value = source;
     }
   }
 
   if (!value) {
     return Helper.returnJSON(res, {
-      message: "No data provided"
+      message: 'No data provided'
     }, 400);
   }
 
@@ -159,7 +159,7 @@ router.post("/*", (req, res) => {
     })
   }
   Helper.returnJSON(res, {
-    message: "OK"
+    message: 'OK'
   }, 201);
 });
 
@@ -184,9 +184,9 @@ router.post("/*", (req, res) => {
  *
  * @apiUse ReturnErrorMessage
  */
-router.put("/", (req, res) => {
-  let path = req.body.path || "";
-  path = path.split("/");
+router.put('/', (req, res) => {
+  let path = req.body.path ?? '';
+  path = path.split('/');
   if (isDebug) {
     console.log(`PATH: ${path}`);
   }
@@ -204,10 +204,9 @@ router.put("/", (req, res) => {
     p = path[i];
     if (!(p in data)) {
       data[p] = {};
-    } else {
-      if (typeof data[p] !== "object") {
-        data[p] = {};
-      }
+    }
+    if (typeof data[p] !== 'object') {
+      data[p] = {};
     }
     data = data[p];
   }
@@ -218,13 +217,13 @@ router.put("/", (req, res) => {
   } else {
     try {
       data[p] = JSON.parse(req.body.value);
-    } catch (e) {
+    } catch {
       data[p] = req.body.value;
     }
   }
 
   Helper.returnJSON(res, {
-    message: "OK"
+    message: 'OK'
   }, 201);
 });
 
@@ -249,7 +248,7 @@ router.put("/", (req, res) => {
  * @apiUse ReturnErrorMessage
  */
 router.delete('/*', (req, res) => {
-  const path = req.path.substring(1).split("/");
+  const path = req.path.substring(1).split('/');
   if (isDebug) {
     console.log(`PATH: ${path}`);
   }
@@ -275,7 +274,7 @@ router.delete('/*', (req, res) => {
 
   delete data[p];
   Helper.returnJSON(res, {
-    message: "OK"
+    message: 'OK'
   }, 200);
 });
 

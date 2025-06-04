@@ -87,6 +87,7 @@ As you can see you can read as much data as you want or you can go as deep along
 `PUT` command works a bit differently than `POST`. But you can achieve the same result with both of them. With `PUT` command you send the data in the request body which is a JSON with `path` and `value` parameters. For example if we want to get same result as with the `POST` example above we would execute:
 ```
 http PUT :16379/v1/db path:'test/test2/test3' value:'{"thirteen":13, "pi":3.14}'
+curl -X PUT http://localhost:16379/v1/db -H "Content-Type: application/json" -d '{"path":"test/test2/test3","value":{"thirteen":13, "pi":3.14}}'
 ```
 This will write the same data to the in memmory JSON structure as our POST example above.
 When sending data programatically a JSON structure of the body would look like this:
@@ -101,7 +102,7 @@ When sending data programatically a JSON structure of the body would look like t
 ```
 
 # Delete data with DELETE command
-`PUT` command works a bit differently than `POST`. But you can achieve the same result with both of them. With `PUT` command you send the data in the request body which is a JSON with `path` and `value` parameters. For example if we want to get same result as with the `POST` example above we would execute:
+`DELETE` request removes data anywhere in the JSON sructure:
 ```
 http DELETE :16379/v1/db path:'test/test2/test3/thirteen'
 curl -X DELETE http://localhost:16379/v1/db/test/test2/test3/thirteen
@@ -134,7 +135,7 @@ docker run -it --rm --entrypoint /bin/ash -w /usr/src/app -v "c:\GIT\github.com\
 ```
 
 # ToDO
-- [ ] Write tests
+- [x] Write tests
 - [x] Implement delete
 - [ ] Implement admin
 - [ ] Implement security

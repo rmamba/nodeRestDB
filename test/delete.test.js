@@ -1,7 +1,7 @@
 const request = require('supertest');
 const server = require('../dist/index');
 
-const baseURL = '/v1/db/qa-tests/post/json';
+const baseURL = '/v1/db/qa-tests/delete/json';
 const testData = {
     thirteen: 13, 
     pi: 3.14,
@@ -11,7 +11,7 @@ const testData = {
     zero: 0,
 };
 
-describe('Test POST requests', () => {
+describe('Test DELETE requests', () => {
 
     beforeAll( async () => {
         const res = await request(server)
@@ -46,53 +46,34 @@ describe('Test POST requests', () => {
         expect(res.text).toBe(testData.zero.toString());
     });
 
-    it('should update existing JSON data without destruction', async () => {
+    it('should remove parts of existing JSON data without destruction', async () => {
         await request(server)
-            .post(`${baseURL}/zero`)
-            .set({ data: 'modified!' })
-            .expect(201);
-
+            .delete(`${baseURL}/zero`)
+            .expect(200);
         let res = await request(server).get(baseURL);
-        expect(res.text).toBe(JSON.stringify({
-            ...testData,
-            zero: 'modified!'
-        }, null, 2));
+        delete(testData.zero);
+        expect(res.text).toBe(JSON.stringify(testData, null, 2));
 
         await request(server)
-            .post(`${baseURL}/subArray`)
-            .set({ data: 'modified!' })
-            .expect(201);
+            .delete(`${baseURL}/subArray`)
+            .expect(200);
         res = await request(server).get(baseURL);
-        expect(res.text).toBe(JSON.stringify({
-            ...testData,
-            subArray: 'modified!',
-            zero: 'modified!',
-        }, null, 2));
+        delete(testData.subArray);
+        expect(res.text).toBe(JSON.stringify(testData, null, 2));
 
         await request(server)
-            .post(`${baseURL}/subJson`)
-            .set({ data: 'modified!' })
-            .expect(201);
+            .delete(`${baseURL}/subJson`)
+            .expect(200);
         res = await request(server).get(baseURL);
-        expect(res.text).toBe(JSON.stringify({
-            ...testData,
-            subArray: 'modified!',
-            subJson: 'modified!',
-            zero: 'modified!',
-        }, null, 2));
+        delete(testData.subJson);
+        expect(res.text).toBe(JSON.stringify(testData, null, 2));
 
         await request(server)
-            .post(`${baseURL}/string`)
-            .set({ data: 'modified!' })
-            .expect(201);
+            .delete(`${baseURL}/string`)
+            .expect(200);
         res = await request(server).get(baseURL);
-        expect(res.text).toBe(JSON.stringify({
-            ...testData,
-            string: 'modified!',
-            subArray: 'modified!',
-            subJson: 'modified!',
-            zero: 'modified!',
-        }, null, 2));
+        delete(testData.string);
+        expect(res.text).toBe(JSON.stringify(testData, null, 2));
     });
 
     afterAll((done) => {

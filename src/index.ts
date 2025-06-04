@@ -54,5 +54,12 @@ app.get("/v1", (req, res) => {
 import db_v1 = require("./API/v1/db");
 app.use("/v1/db", db_v1);
 
-const PORT = process.env.PORT || 16379;
-export = app.listen(PORT, () => console.log(`Listening on port ${PORT}...`));
+let PORT = process.env.PORT || 16379;
+if (process.env.NODE_ENV === 'test') {
+  PORT = 0;
+}
+const server = app.listen(PORT, () => {
+  const addr = server.address();
+  console.log(`Listening on port ${typeof(addr) === 'string' ? addr : addr.port}...`);
+});
+export = server;
