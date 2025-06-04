@@ -15,7 +15,7 @@ pipeline {
                 script {
                     currentBuild.displayName = "${params.gitLabel}"
                 }
-                sh "docker run --rm --entrypoint /bin/ash -w /usr/src/app -u 113:119 -v $WORKSPACE:/usr/src/app node:20-alpine test.sh"
+                sh "docker run --rm --entrypoint /bin/ash -w /usr/src/app -u ${params.UserID}:${params.GroupID} -v $WORKSPACE:/usr/src/app node:20-alpine test.sh"
             }
         }
         stage('Publish Test results') {

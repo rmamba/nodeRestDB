@@ -127,6 +127,12 @@ http POST :16379/v1/db/test/test2/test3 data:'{"krneki13":13, "butast":3.14}' se
 ```
 It makes sense to choose a secure secret, you can generate a GUID string or simmilar and use that as your secret.
 
+# Run tests
+
+```
+docker run -it --rm --entrypoint /bin/ash -w /usr/src/app -v "c:\GIT\github.com\rmamba\nodeRestDB":/usr/src/app node:20-alpine test.sh
+```
+
 # ToDO
 - [ ] Write tests
 - [x] Implement delete
